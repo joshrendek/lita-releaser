@@ -9,7 +9,9 @@ module Lita
       config :org
       config :token
 
-      route (/releaser ship (\w+)?/i), :ship, command: true
+      route (/releaser ship (\w+)?/i), :ship, command: true, help: {
+              'releaser ship <project_name>' => 'Merges develop into master for <project_name>'
+            }
 
       def ship(response)
         repo = response.matches.first.last

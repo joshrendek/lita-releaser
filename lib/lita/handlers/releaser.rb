@@ -10,13 +10,29 @@ module Lita
       config :org
       config :token
 
-      route (/releaser ship (\w|\S+)?/i), :ship, command: true, help: {
+      route (/releaser ship ([a-zA-Z-]+)?/i), :ship, command: true, help: {
               'releaser ship <project_name>' => 'Merges develop into master for <project_name>'
             }
 
-      route (/releaser release (\w|\S+) (v[0-9]{1,}\.[0-9]{1,}\.[0-9]{1,}) (.*)/i), :release, command: true, help: {
+      route (/releaser last_version ([a-zA-Z-]+)?/i), :last_version, command: true, help: {
+              'releaser last_version <project_name>' => 'Gets last version of a project'
+            }
+
+      route (/releaser release ([a-zA-Z-]+)? (v[0-9]{1,}\.[0-9]{1,}\.[0-9]{1,}) (.*)/i), :release, command: true, help: {
               'releaser release <project_name> <version> <release description>' => "Publishes a new release on github for <project_name> with <version> and <description>"
             }
+
+      def last_version(response)
+        m = response.matches[0]
+        repo = m[0]
+        repo_path = "#{config.org}/#{repo}"
+        begin
+          resp = client.latest_release(repo_path)
+          response.reply "Latest release: Name: #{resp.name} | Tag: #{resp.tag_name} | Link: #{resp.html_url}"
+        rescue => e
+          response.reply "Error: #{e}"
+        end
+      end
 
       def release(response)
         m = response.matches[0]

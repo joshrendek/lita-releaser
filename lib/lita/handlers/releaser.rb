@@ -9,6 +9,7 @@ module Lita
 
       config :org
       config :token
+      config :merge_method
 
       route (/releaser ship ([a-zA-Z-]+)?/i), :ship, command: true, help: {
               'releaser ship <project_name>' => 'Merges develop into master for <project_name>'
@@ -58,7 +59,7 @@ module Lita
         begin
           resp = client.create_pull_request(repo_path, "master", "develop", title, body)
           pr_number = resp['number']
-          client.merge_pull_request(repo_path, pr_number)
+          client.merge_pull_request(repo_path, pr_number, '', { merge_method: config.merge_method })
           response.reply "Release shipped: #{title} [ #{resp['url']} ]"
         rescue => e
           response.reply "Release already exists: #{e}"
